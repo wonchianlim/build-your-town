@@ -68,8 +68,15 @@ button{font-family:inherit}
 .sidebar-section ul{padding-left:1.1rem}
 
 /* ===== CITY BRIEFING CARDS ===== */
-.brief-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
-@media(max-width:700px){.brief-grid{grid-template-columns:1fr}}
+.brief-carousel-wrap{display:flex;flex-direction:column;gap:1rem}
+.brief-carousel-nav{display:flex;align-items:center;justify-content:center;gap:1.25rem;flex-wrap:wrap}
+.brief-carousel-counter{font-weight:800;font-size:1.1rem;color:var(--navy);min-width:5rem;text-align:center}
+.brief-carousel-btn{min-width:8rem;padding:.75rem 1.25rem!important;font-size:1rem!important}
+.brief-dots{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap}
+.brief-dot{width:.85rem;height:.85rem;border-radius:50%;border:2px solid var(--navy-light);background:#fff;cursor:pointer;padding:0;transition:.15s}
+.brief-dot.active{background:var(--orange);border-color:var(--orange);transform:scale(1.15)}
+.brief-dot.taken{background:var(--green);border-color:var(--green);opacity:.7}
+.brief-carousel-viewport{max-width:42rem;margin:0 auto;width:100%}
 .dashboard.briefing-focus{grid-template-columns:13rem 1fr}
 .dashboard.briefing-focus .sidebar-right{display:none}
 #panel-briefing .panel-body{padding:1.25rem}
@@ -227,8 +234,18 @@ button{font-family:inherit}
 .np-event-block[data-theme="climate"]{border-color:#00695c}
 .np-event-block[data-theme="trade"]{border-color:#0277bd}
 .overlay-box.setup-wide{max-width:46rem}
-.player-setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
-@media(max-width:560px){.player-setup-grid{grid-template-columns:1fr}}
+.setup-options{background:#f0f4f8;border:2px solid var(--border);border-radius:12px;padding:1rem 1.15rem;margin-bottom:1.15rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.setup-options label{font-weight:700;color:var(--navy);font-size:1.05rem}
+.setup-options select{padding:.55rem .85rem;border:2px solid var(--border);border-radius:8px;font-size:1.05rem;font-weight:600;color:var(--navy);min-width:10rem}
+.player-setup-grid{display:grid;gap:1rem;margin-bottom:1.25rem}
+.player-setup-grid.cols-1{grid-template-columns:1fr}
+.player-setup-grid.cols-2{grid-template-columns:1fr 1fr}
+.player-setup-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.player-setup-grid.cols-4{grid-template-columns:1fr 1fr}
+@media(max-width:700px){.player-setup-grid.cols-2,.player-setup-grid.cols-3,.player-setup-grid.cols-4{grid-template-columns:1fr}}
+.teacher-city-count{margin-bottom:.75rem}
+.teacher-city-count select{width:100%;padding:.45rem;border-radius:8px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-weight:600;font-size:.92rem}
+.teacher-city-count label{display:block;font-size:.78rem;text-transform:uppercase;opacity:.8;margin-bottom:.35rem;letter-spacing:.4px}
 .player-setup-card{background:#f8f9fa;border:2px solid var(--border);border-radius:12px;padding:1rem}
 .player-setup-card h4{font-size:1.05rem;margin-bottom:.65rem;color:var(--navy)}
 .avatar-picker{display:flex;gap:.65rem;margin-bottom:.75rem;justify-content:center}
@@ -248,12 +265,9 @@ button{font-family:inherit}
 .brief-card:hover:not(.taken){transform:translateY(-3px);box-shadow:0 8px 20px rgba(26,58,92,.15)}
 .brief-card.selected{box-shadow:0 0 0 4px rgba(232,119,34,.45)}
 .brief-card.taken{opacity:.5;cursor:not-allowed}
-.brief-art{width:100%;aspect-ratio:16/10;height:auto;min-height:10rem;max-height:14rem;background-repeat:no-repeat;flex-shrink:0}
-.brief-art.sprite-cities{background-size:200% 400%}
-.brief-art.city-sprite-riverbend{background-position:0% 0%}
-.brief-art.city-sprite-ironvale{background-position:100% 0%}
-.brief-art.city-sprite-sunport{background-position:0% 25%}
-.brief-art.city-sprite-greenhill{background-position:100% 25%}
+.brief-art{width:100%;aspect-ratio:16/10;height:auto;min-height:12rem;max-height:18rem;background-size:cover;background-position:center top;background-repeat:no-repeat;flex-shrink:0}
+.city-art{background-size:cover;background-position:center top;background-repeat:no-repeat}
+.glance-thumb.city-art,.np-img.city-art{height:6.5rem;width:100%}
 .brief-body{padding:1.15rem 1.25rem 1.25rem;font-size:1rem;line-height:1.5;flex:1}
 .brief-title-row{display:flex;align-items:center;gap:.85rem;margin-bottom:.85rem;padding-bottom:.75rem;border-bottom:2px solid var(--border)}
 .brief-icon{width:3rem;height:3rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;flex-shrink:0}
@@ -278,12 +292,7 @@ button{font-family:inherit}
 .brief-assigned{font-size:.95rem;color:var(--navy-light);margin-top:.75rem;font-style:italic;font-weight:600}
 
 /* ===== GLANCE WITH PHOTOS ===== */
-.glance-thumb{width:calc(100% + 1.7rem);height:4.5rem;border-radius:8px 8px 0 0;margin:-0.85rem -0.85rem 0.65rem -0.85rem;background-repeat:no-repeat}
-.glance-thumb.sprite-cities{background-size:200% 400%}
-.glance-thumb.city-sprite-riverbend{background-position:0% 0%}
-.glance-thumb.city-sprite-ironvale{background-position:100% 0%}
-.glance-thumb.city-sprite-sunport{background-position:0% 25%}
-.glance-thumb.city-sprite-greenhill{background-position:100% 25%}
+.glance-thumb{width:calc(100% + 1.7rem);height:4.5rem;border-radius:8px 8px 0 0;margin:-0.85rem -0.85rem 0.65rem -0.85rem}
 .glance-card{padding:.85rem;padding-top:0;overflow:hidden}
 .glance-mayor{display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem;font-size:1rem}
 .glance-avatar{width:2.25rem;height:2.25rem;border-radius:50%;border:2px solid var(--orange);flex-shrink:0;background-size:200% 200%;background-repeat:no-repeat}
@@ -301,8 +310,17 @@ button{font-family:inherit}
 <div class="overlay show" id="setup-overlay">
   <div class="overlay-box setup-wide">
     <h2>🏙️ Build Your Town</h2>
-    <p style="margin-bottom:14px;line-height:1.6">Choose your mayor avatar and enter your name. Each avatar can only be used once.</p>
-    <div class="player-setup-grid" id="player-setup-grid"></div>
+    <p style="margin-bottom:14px;line-height:1.6">Set how many cities are in play, then choose mayor avatars and names.</p>
+    <div class="setup-options">
+      <label for="setup-num-cities">🏙️ Cities in this game</label>
+      <select id="setup-num-cities">
+        <option value="1">1 city (1 mayor)</option>
+        <option value="2">2 cities (2 mayors)</option>
+        <option value="3">3 cities (3 mayors)</option>
+        <option value="4" selected>4 cities (4 mayors)</option>
+      </select>
+    </div>
+    <div class="player-setup-grid cols-4" id="player-setup-grid"></div>
     <button class="btn btn-primary btn-block" id="btn-start-game">Start Game →</button>
   </div>
 </div>
@@ -350,7 +368,7 @@ button{font-family:inherit}
     <ul style="padding-left:1.25rem;line-height:1.8;font-size:1.05rem;margin-bottom:1rem">
       <li>Spin the wheel to assign students to cities</li>
       <li>Read city briefings (3 min) and plan your strategy</li>
-      <li>Each round = 10 years. Pick investments (2 min per round)</li>
+      <li>Each round = 10 years. Each mayor gets <strong>2 minutes</strong> to pick investments</li>
       <li>Balance Budget, Happiness, Population, Education, Health, Environment</li>
       <li>Borrow wisely from the bank — debt has consequences!</li>
       <li>Random events can help or hurt — tap <strong>Random Events</strong> to preview them</li>
@@ -399,6 +417,16 @@ button{font-family:inherit}
       </ul>
     </div>
 
+    <div class="sidebar-section teacher-city-count" id="teacher-city-count-wrap">
+      <label for="teacher-num-cities">Cities in game</label>
+      <select id="teacher-num-cities">
+        <option value="1">1 city</option>
+        <option value="2">2 cities</option>
+        <option value="3">3 cities</option>
+        <option value="4" selected>4 cities</option>
+      </select>
+    </div>
+
     <div class="sidebar-section">
       <h4>Quick Actions (Teacher)</h4>
       <button class="btn btn-green btn-block" id="skip-timer">⏭ Skip Timer</button>
@@ -419,7 +447,16 @@ button{font-family:inherit}
         <span class="timer-pill" id="brief-timer">3:00</span>
       </div>
       <div class="panel-body">
-        <div class="brief-grid" id="brief-grid"></div>
+        <div class="brief-carousel-wrap">
+          <div class="brief-carousel-nav">
+            <button type="button" class="btn btn-navy brief-carousel-btn" id="brief-prev">◀ Prev</button>
+            <span class="brief-carousel-counter" id="brief-counter">1 / 4</span>
+            <button type="button" class="btn btn-navy brief-carousel-btn" id="brief-next">Next ▶</button>
+          </div>
+          <div class="brief-carousel-viewport" id="brief-grid"></div>
+          <div class="brief-dots" id="brief-dots"></div>
+          <p id="brief-carousel-hint" style="text-align:center;color:#666;font-size:.95rem;margin-top:.25rem"></p>
+        </div>
         <div class="rename-row hidden" id="rename-row">
           <label style="font-size:1rem;font-weight:600">Rename city:</label>
           <input type="text" id="city-rename" placeholder="Custom name" maxlength="24">
@@ -495,6 +532,7 @@ const YEARS_PER_ROUND = 10;
 const BRIEFING_SECONDS = 180;
 const ROUND_SECONDS = 120;
 const UI_SCALE = 1.65; // Display size — 1.0 = laptop, 1.65 = classroom TV, 2.0 = large projector
+let NUM_CITIES = 4; // Moderator: 1–4 cities (and mayors) in this game
 const START_BUDGET = 1000;
 const START_POP = 50000;
 const START_STAT = 50;
@@ -653,15 +691,40 @@ let students=[], remainingStudents=[], cities=[], assignments=[];
 let currentRound=1, currentMayorIdx=0, selectedInv=[], timerInterval=null;
 let eventSchedule=[], roundNewspapers=[], activeCategory=CATEGORIES[0];
 let wheelRotation=0, spinning=false, pickedCityType=null, gamePhase='setup';
-let lastNewspaperIdx=0, teacherMode=false;
+let lastNewspaperIdx=0, teacherMode=false, briefCarouselIdx=0;
 let playerSlots = []; // { name, avatarId }
+
+function getActiveCityTypes(){ return CITY_TYPES.slice(0, NUM_CITIES); }
+function cityArtUrl(typeId){ return `assets/cities/${typeId}.jpg`; }
+function cityArtDiv(typeId, extraClass=''){
+  return `<div class="city-art ${extraClass}" style="background-image:url('${cityArtUrl(typeId)}')"></div>`;
+}
+function setNumCities(n){
+  NUM_CITIES=Math.max(1,Math.min(4,+n||4));
+  const setupSel=document.getElementById('setup-num-cities');
+  const teacherSel=document.getElementById('teacher-num-cities');
+  if(setupSel) setupSel.value=String(NUM_CITIES);
+  if(teacherSel) teacherSel.value=String(NUM_CITIES);
+  syncPlayerSlotsToCityCount();
+  briefCarouselIdx=0;
+  const grid=document.getElementById('player-setup-grid');
+  if(grid) grid.className='player-setup-grid cols-'+NUM_CITIES;
+  if(document.getElementById('setup-overlay').classList.contains('show')) renderPlayerSetup();
+  else if(gamePhase==='assign'||gamePhase==='briefing') renderBriefGrid();
+}
+function syncPlayerSlotsToCityCount(){
+  const avs=AVATARS.slice(0,NUM_CITIES);
+  playerSlots=avs.map((av,i)=>({
+    name:playerSlots[i]?.name||av.defaultName,
+    avatarId:playerSlots[i]?.avatarId??i
+  }));
+}
+function canChangeCityCount(){
+  return gamePhase==='setup'||document.getElementById('setup-overlay').classList.contains('show')||(gamePhase==='assign'&&!assignments.length);
+}
 
 function avatarPos(id){ return ['0% 0%','100% 0%','0% 100%','100% 100%'][id]; }
 function avatarStyle(id){ return `background-image:url('assets/avatars.png');background-size:200% 200%;background-position:${avatarPos(id)}`; }
-function citySpriteStyle(spriteClass){
-  const pos = { 'city-sprite-riverbend':'0% 0%', 'city-sprite-ironvale':'100% 0%', 'city-sprite-sunport':'0% 100%', 'city-sprite-greenhill':'100% 100%' };
-  return `background-image:url('assets/cities.png');background-size:200% 200%;background-position:${pos[spriteClass]||'0% 0%'}`;
-}
 function getStudentAvatarId(name){
   const slot = playerSlots.find(p => p.name === name);
   return slot ? slot.avatarId : 0;
@@ -742,39 +805,82 @@ function renderStudentList(){
   }).join('');
 }
 
+function renderBriefCardHtml(ct, opts={}){
+  const {taken=false, selected=false, assigned=null, clickable=false}=opts;
+  return `<div class="brief-card ${taken?'taken':''} ${selected?'selected':''} ${clickable?'clickable':''}" data-id="${ct.id}" data-city="${ct.id}">
+    ${cityArtDiv(ct.id,'brief-art')}
+    <div class="brief-body">
+      <div class="brief-title-row">
+        <div class="brief-icon ${ct.id}">${ct.emoji}</div>
+        <div class="brief-title-block">
+          <h3>${assigned?assigned.customName:ct.name}</h3>
+          <div class="brief-subtitle ${ct.id}">${ct.subtitle}</div>
+        </div>
+      </div>
+      <div class="brief-facts">
+        <div class="brief-fact strength"><span class="brief-fact-label">Strength</span><span class="brief-fact-text">${ct.strength}</span></div>
+        <div class="brief-fact challenge"><span class="brief-fact-label">Challenge</span><span class="brief-fact-text">${ct.challenge}</span></div>
+        <div class="brief-fact risk"><span class="brief-fact-label">Special Risk</span><span class="brief-fact-text">${ct.specialRisk}</span></div>
+      </div>
+      ${assigned?`<div class="brief-assigned">Mayor: ${assigned.student}</div>`:''}
+    </div></div>`;
+}
+
 function renderBriefGrid(){
+  const types=getActiveCityTypes();
+  if(!types.length) return;
+  briefCarouselIdx=Math.max(0,Math.min(briefCarouselIdx,types.length-1));
   const taken=assignments.map(a=>a.typeId);
   const picking=gamePhase==='assign'&&window._currentPicker;
-  document.getElementById('brief-grid').innerHTML=CITY_TYPES.map(ct=>{
-    const a=assignments.find(x=>x.typeId===ct.id);
-    const sel=pickedCityType===ct.id;
-    return `<div class="brief-card ${taken.includes(ct.id)?'taken':''} ${sel?'selected':''}" data-id="${ct.id}" data-city="${ct.id}">
-      <div class="brief-art sprite-cities ${ct.spriteClass}"></div>
-      <div class="brief-body">
-        <div class="brief-title-row">
-          <div class="brief-icon ${ct.id}">${ct.emoji}</div>
-          <div class="brief-title-block">
-            <h3>${a?a.customName:ct.name}</h3>
-            <div class="brief-subtitle ${ct.id}">${ct.subtitle}</div>
-          </div>
-        </div>
-        <div class="brief-facts">
-          <div class="brief-fact strength"><span class="brief-fact-label">Strength</span><span class="brief-fact-text">${ct.strength}</span></div>
-          <div class="brief-fact challenge"><span class="brief-fact-label">Challenge</span><span class="brief-fact-text">${ct.challenge}</span></div>
-          <div class="brief-fact risk"><span class="brief-fact-label">Special Risk</span><span class="brief-fact-text">${ct.specialRisk}</span></div>
-        </div>
-        ${a?`<div class="brief-assigned">Mayor: ${a.student}</div>`:''}
-      </div></div>`;
+  const ct=types[briefCarouselIdx];
+  const a=assignments.find(x=>x.typeId===ct.id);
+  const sel=pickedCityType===ct.id;
+  const viewport=document.getElementById('brief-grid');
+  viewport.innerHTML=renderBriefCardHtml(ct,{
+    taken:taken.includes(ct.id)&&!sel,
+    selected:sel,
+    assigned:a?{student:a.student,customName:a.customName}:null,
+    clickable:!!picking&&!taken.includes(ct.id)
+  });
+  document.getElementById('brief-counter').textContent=(briefCarouselIdx+1)+' / '+types.length;
+  document.getElementById('brief-dots').innerHTML=types.map((t,i)=>{
+    const isTaken=taken.includes(t.id);
+    return `<button type="button" class="brief-dot ${i===briefCarouselIdx?'active':''} ${isTaken?'taken':''}" data-idx="${i}" aria-label="${t.name}"></button>`;
   }).join('');
-  document.querySelectorAll('.brief-card:not(.taken)').forEach(el=>{
-    if(!picking)return;
-    el.addEventListener('click',()=>{
+  const hint=document.getElementById('brief-carousel-hint');
+  if(picking){
+    hint.textContent=taken.includes(ct.id)&&!sel
+      ? 'This city already has a mayor — use Prev/Next to browse other cities.'
+      : 'Use ◀ ▶ to compare cities, then tap the card to select this city.';
+  } else if(gamePhase==='briefing'){
+    hint.textContent='Browse each city before Round 1. Use ◀ ▶ or the dots below.';
+  } else hint.textContent='';
+  document.getElementById('brief-prev').disabled=briefCarouselIdx<=0;
+  document.getElementById('brief-next').disabled=briefCarouselIdx>=types.length-1;
+  const nav=document.querySelector('.brief-carousel-nav');
+  const dotsEl=document.getElementById('brief-dots');
+  if(nav) nav.style.display=types.length<=1?'none':'flex';
+  if(dotsEl) dotsEl.style.display=types.length<=1?'none':'flex';
+  const card=viewport.querySelector('.brief-card');
+  if(card&&picking&&!taken.includes(ct.id)){
+    card.style.cursor='pointer';
+    card.onclick=()=>{
+      pickedCityType=ct.id;
       document.querySelectorAll('.brief-card').forEach(x=>x.classList.remove('selected'));
-      el.classList.add('selected'); pickedCityType=el.dataset.id;
+      card.classList.add('selected');
       document.getElementById('btn-confirm-city').disabled=false;
       document.getElementById('rename-row').classList.remove('hidden');
-    });
+      renderBriefGrid();
+    };
+  }
+  document.querySelectorAll('.brief-dot').forEach(dot=>{
+    dot.onclick=()=>{briefCarouselIdx=+dot.dataset.idx;renderBriefGrid();};
   });
+}
+function briefCarouselStep(delta){
+  const types=getActiveCityTypes();
+  briefCarouselIdx=Math.max(0,Math.min(types.length-1,briefCarouselIdx+delta));
+  renderBriefGrid();
 }
 
 function renderGlance(){
@@ -788,7 +894,7 @@ function renderGlance(){
     }).join('');
     const avId = c.avatarId ?? 0;
     return `<div class="glance-card ${i===currentMayorIdx&&gamePhase==='playing'?'active':''}">
-      <div class="glance-thumb sprite-cities ${c.spriteClass||'city-sprite-riverbend'}"></div>
+      ${cityArtDiv(c.typeId,'glance-thumb')}
       <div class="glance-mayor">
         <span class="glance-avatar sprite-avatars avatar-sprite-${avId}"></span>
         <span class="glance-name" style="margin:0">${c.displayName}${i===currentMayorIdx&&gamePhase==='playing'?' <span class="glance-active">ACTIVE</span>':''}</span>
@@ -864,7 +970,7 @@ function renderSidebarNewspaper(np){
     <div class="newspaper">
       <div class="np-masthead"><div class="np-name">${np.city.toUpperCase()} TIMES</div><div class="np-edition">Year ${np.year} · Special Edition</div></div>
       <div class="np-headline">${np.headline}</div>
-      ${np.event?renderNewspaperEventBlock(getEventById(np.event.id)||np.event,np.event.msg):`<div class="np-img sprite-cities ${np.spriteClass||''}"></div>`}
+      ${np.event?renderNewspaperEventBlock(getEventById(np.event.id)||np.event,np.event.msg):cityArtDiv(np.typeId||'riverbend','np-img city-art')}
       <p style="font-size:.95rem;line-height:1.5;margin-bottom:.65rem">${np.explain.slice(0,180)}…</p>
       <div class="np-at-glance"><strong style="font-size:.92rem">AT A GLANCE</strong>
         <div class="np-stat-row"><span>Budget</span><span>${fmtM(np.after.metrics.budget)} ${d(np.before.metrics.budget,np.after.metrics.budget)}</span></div>
@@ -878,8 +984,15 @@ function renderSidebarNewspaper(np){
 }
 
 function refreshUI(){
+  updateTeacherCityCountUI();
   renderRoundTracker(); renderStudentList(); renderBriefGrid(); renderGlance();
   renderCategoryTabs(); renderInvestments(); updateCart(); renderBank(); updateDebtWarnings();
+}
+function updateTeacherCityCountUI(){
+  const wrap=document.getElementById('teacher-city-count-wrap');
+  const sel=document.getElementById('teacher-num-cities');
+  if(wrap) wrap.style.display=canChangeCityCount()?'block':'none';
+  if(sel&&!canChangeCityCount()) sel.value=String(NUM_CITIES);
 }
 
 /* ===== WHEEL ===== */
@@ -927,7 +1040,7 @@ function spinWheel(){
       document.getElementById('pick-banner').innerHTML=
         `<span class="pick-banner-avatar sprite-avatars avatar-sprite-${avId}"></span><span>🎯 ${winner}, choose your city below!</span>`;
       document.getElementById('pick-banner').classList.remove('hidden');
-      window._currentPicker=winner; pickedCityType=null;
+      window._currentPicker=winner; pickedCityType=null; briefCarouselIdx=0;
       document.getElementById('rename-row').classList.remove('hidden');
       document.getElementById('btn-confirm-city').disabled=true;
       renderBriefGrid();
@@ -936,7 +1049,7 @@ function spinWheel(){
 }
 
 function confirmCity(){
-  const type=CITY_TYPES.find(c=>c.id===pickedCityType);
+  const type=getActiveCityTypes().find(c=>c.id===pickedCityType);
   if(!type)return;
   const rename=document.getElementById('city-rename').value.trim();
   assignments.push({student:window._currentPicker,typeId:type.id,customName:rename||type.name,avatarId:getStudentAvatarId(window._currentPicker)});
@@ -965,12 +1078,13 @@ function startRound(){
   setPhase('playing'); gamePhase='playing';
   currentMayorIdx=0; selectedInv=[];
   document.getElementById('panel-briefing').classList.add('hidden');
-  startTimer(ROUND_SECONDS,'round-timer');
   playMayorTurn(); refreshUI();
 }
 
 function playMayorTurn(){
-  selectedInv=[]; renderGlance(); renderInvestments(); updateCart(); renderBank(); updateDebtWarnings();
+  selectedInv=[];
+  startTimer(ROUND_SECONDS,'round-timer');
+  renderGlance(); renderInvestments(); updateCart(); renderBank(); updateDebtWarnings();
 }
 
 function confirmMayorInvestments(){
@@ -1071,7 +1185,7 @@ function generateNewspaper(city,before){
   if(city._lastEvent)explain+=city._lastEvent.msg+' ';
   if(city._refinanced)explain+='The city refinanced a loan at higher interest. ';
   explain+='Mayor '+city.student+' must plan for the next decade.';
-  return{city:city.displayName,student:city.student,year:currentRound*YEARS_PER_ROUND,headline,explain,spriteClass:city.spriteClass,before,
+  return{city:city.displayName,student:city.student,typeId:city.typeId,year:currentRound*YEARS_PER_ROUND,headline,explain,spriteClass:city.spriteClass,before,
     after:{metrics:{...m},population:m.population,debt:city.flags.debt},popLog:city.popLog,event:city._lastEvent,whatHappened:city.whatHappened};
 }
 
@@ -1082,7 +1196,7 @@ function showNewspapers(){
     <div class="newspaper">
       <div class="np-masthead"><div class="np-name">${np.city.toUpperCase()} TIMES</div><div class="np-edition">Year ${np.year}</div></div>
       <div class="np-headline">${np.headline}</div>
-      ${np.event?renderNewspaperEventBlock(getEventById(np.event.id)||np.event,np.event.msg):`<div class="np-img sprite-cities ${np.spriteClass||''}"></div>`}
+      ${np.event?renderNewspaperEventBlock(getEventById(np.event.id)||np.event,np.event.msg):cityArtDiv(np.typeId||'riverbend','np-img city-art')}
       <p style="font-size:1rem;line-height:1.55;margin:.65rem 0">${np.explain}</p>
       <div class="np-at-glance" style="font-size:.95rem">
         Budget: ${fmtM(np.before.metrics.budget)} → ${fmtM(np.after.metrics.budget)} ·
@@ -1147,7 +1261,7 @@ function showFinal(){
     <div class="rank-card highlight"><div class="rank-title">🎯 Best Planning</div>${scored[0].city.displayName} — ${scored[0].score}</div>`;
   document.getElementById('final-cities').innerHTML=scored.map(s=>`
     <div class="glance-card ${s.city.displayName===scored[0].city.displayName?'active':''}">
-      <div class="glance-thumb sprite-cities ${s.city.spriteClass||'city-sprite-riverbend'}"></div>
+      ${cityArtDiv(s.city.typeId||'riverbend','glance-thumb')}
       <div class="glance-mayor">
         <span class="glance-avatar sprite-avatars avatar-sprite-${s.city.avatarId??0}"></span>
         <strong>${s.city.displayName}</strong>
@@ -1160,8 +1274,9 @@ function showFinal(){
 
 /* ===== PLAYER SETUP (avatars) ===== */
 function renderPlayerSetup(){
-  if(!playerSlots.length) playerSlots=AVATARS.map((av,i)=>({name:av.defaultName,avatarId:i}));
+  syncPlayerSlotsToCityCount();
   const grid=document.getElementById('player-setup-grid');
+  grid.className='player-setup-grid cols-'+NUM_CITIES;
   const usedAvatars=playerSlots.map(p=>p.avatarId);
   grid.innerHTML=playerSlots.map((slot,i)=>`
     <div class="player-setup-card" data-slot="${i}">
@@ -1188,6 +1303,7 @@ function renderPlayerSetup(){
 
 /* ===== EVENT LISTENERS ===== */
 document.getElementById('btn-start-game').addEventListener('click',()=>{
+  setNumCities(document.getElementById('setup-num-cities').value);
   const inputs=[...document.querySelectorAll('.player-name-input')];
   playerSlots=playerSlots.map((p,i)=>({
     name:(inputs[i]?.value.trim())||AVATARS[p.avatarId].defaultName,
@@ -1195,10 +1311,24 @@ document.getElementById('btn-start-game').addEventListener('click',()=>{
   }));
   students=playerSlots.map(p=>p.name);
   remainingStudents=[...students]; assignments=[];
+  briefCarouselIdx=0;
   document.getElementById('setup-overlay').classList.remove('show');
   setPhase('assign'); gamePhase='assign';
   drawWheel(remainingStudents); renderStudentList(); renderBriefGrid(); renderSidebarNewspaper(null); renderBank(); refreshUI();
 });
+document.getElementById('setup-num-cities').addEventListener('change',e=>setNumCities(e.target.value));
+document.getElementById('teacher-num-cities').addEventListener('change',e=>{
+  if(!canChangeCityCount()){alert('City count can only be changed before any city is assigned.');e.target.value=String(NUM_CITIES);return;}
+  setNumCities(e.target.value);
+  if(gamePhase==='assign'){
+    students=playerSlots.map(p=>p.name);
+    remainingStudents=[...students]; assignments=[];
+    pickedCityType=null; briefCarouselIdx=0;
+    drawWheel(remainingStudents); refreshUI();
+  }
+});
+document.getElementById('brief-prev').addEventListener('click',()=>briefCarouselStep(-1));
+document.getElementById('brief-next').addEventListener('click',()=>briefCarouselStep(1));
 document.getElementById('btn-spin').addEventListener('click',spinWheel);
 document.getElementById('btn-confirm-city').addEventListener('click',confirmCity);
 document.getElementById('btn-start-round1').addEventListener('click',()=>{clearInterval(timerInterval);currentRound=1;startRound();});
@@ -1218,6 +1348,7 @@ document.getElementById('btn-teacher').addEventListener('click',()=>{teacherMode
 
 renderEventsGrid();
 initUIScale();
+setNumCities(4);
 renderPlayerSetup();
 </script>
 </body>
