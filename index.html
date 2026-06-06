@@ -993,7 +993,11 @@ function showFinal(){
     <div class="rank-card highlight"><div class="rank-title">🎯 Best Planning</div>${scored[0].city.displayName} — ${scored[0].score}</div>`;
   document.getElementById('final-cities').innerHTML=scored.map(s=>`
     <div class="glance-card ${s.city.displayName===scored[0].city.displayName?'active':''}">
-      <div class="glance-name">${s.city.emoji} ${s.city.displayName}</div>
+      <div class="glance-thumb sprite-cities ${s.city.spriteClass||'city-sprite-riverbend'}"></div>
+      <div class="glance-mayor">
+        <span class="glance-avatar sprite-avatars avatar-sprite-${s.city.avatarId??0}"></span>
+        <strong>${s.city.displayName}</strong>
+      </div>
       <div style="font-size:.75rem;line-height:1.6;margin-top:6px">
         Mayor: ${s.city.student}<br>Budget: ${fmtM(s.city.metrics.budget)}<br>Pop: ${fmt(s.city.metrics.population)}<br>
         Score: <strong>${s.score}</strong></div></div>`).join('');
