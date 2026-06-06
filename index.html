@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Town</title>
+<style>
+:root {
+  --navy:#1a3a5c; --navy-dark:#0f2840; --navy-light:#2a5080;
+  --orange:#e87722; --orange-light:#f5a623;
+  --white:#fff; --green:#28a745; --light-green:#d4edda;
+  --red:#dc3545; --yellow:#ffc107; --gray:#eef2f7; --border:#c8d6e5;
+  --shadow:0 4px 14px rgba(26,58,92,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--gray);color:var(--navy);min-height:100vh;display:flex;flex-direction:column}
+button{font-family:inherit}
+.btn{padding:9px 18px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82rem;transition:.12s}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-navy{background:var(--navy-light);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-blue{background:#0277bd;color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-block{width:100%;margin-bottom:8px;padding:12px}
+.btn-sm{padding:6px 12px;font-size:.75rem}
+
+/* ===== HEADER ===== */
+.app-header{background:var(--navy-dark);color:#fff;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{font-size:1.35rem;font-weight:900;letter-spacing:.5px}
+.round-tracker{display:flex;align-items:center;gap:6px}
+.round-step{display:flex;flex-direction:column;align-items:center;gap:3px}
+.round-dot{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem}
+.round-step.done .round-dot{background:var(--green);border-color:var(--green)}
+.round-step.current .round-dot{background:var(--orange);border-color:var(--orange);box-shadow:0 0 0 3px rgba(232,119,34,.35)}
+.round-step span{font-size:.62rem;opacity:.75;text-transform:uppercase}
+.round-line{width:28px;height:3px;background:rgba(255,255,255,.2);margin-bottom:16px}
+.round-line.done{background:var(--green)}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ===== DASHBOARD LAYOUT ===== */
+.dashboard{display:grid;grid-template-columns:220px 1fr 260px;flex:1;gap:0;min-height:0}
+.sidebar-left{background:var(--navy);color:#fff;padding:14px;overflow-y:auto}
+.main-center{padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.sidebar-right{background:var(--white);border-left:1px solid var(--border);padding:14px;overflow-y:auto}
+
+.panel{background:#fff;border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.panel-head{padding:10px 14px;border-bottom:1px solid var(--border);font-weight:800;font-size:.85rem;display:flex;justify-content:space-between;align-items:center}
+.panel-head.orange{color:var(--orange);background:#fff8f0}
+.panel-body{padding:12px}
+
+/* ===== LEFT SIDEBAR ===== */
+.wheel-box{text-align:center;margin-bottom:12px}
+.wheel-container{position:relative;width:180px;height:180px;margin:0 auto 10px}
+.wheel-pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:20px;z-index:2}
+#wheel-canvas{border-radius:50%}
+.spin-result{font-size:.82rem;color:var(--orange-light);min-height:32px;margin:6px 0;line-height:1.3}
+.student-list{font-size:.78rem;line-height:1.8;margin-top:8px}
+.student-list li{list-style:none;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.student-list .assigned{color:var(--orange-light)}
+.sidebar-section{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.15)}
+.sidebar-section h4{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;opacity:.7;margin-bottom:8px}
+.sidebar-section p,.sidebar-section li{font-size:.76rem;line-height:1.55;opacity:.9}
+.sidebar-section ul{padding-left:16px}
+
+/* ===== CITY BRIEFING CARDS ===== */
+.brief-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:1200px){.brief-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.brief-grid{grid-template-columns:1fr}}
+.brief-card{border:2px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:.15s;background:#fff}
+.brief-card:hover:not(.taken){border-color:var(--orange);transform:translateY(-2px)}
+.brief-card.selected{border-color:var(--orange);box-shadow:0 0 0 3px rgba(232,119,34,.25)}
+.brief-card.taken{opacity:.45;cursor:not-allowed}
+.brief-art{height:64px;display:flex;align-items:center;justify-content:center;font-size:2rem}
+.art-riverbend{background:linear-gradient(135deg,#4fc3f7,#81c784)}
+.art-ironvale{background:linear-gradient(135deg,#78909c,#5d4037)}
+.art-sunport{background:linear-gradient(135deg,#29b6f6,#ffcc80)}
+.art-greenhill{background:linear-gradient(135deg,#66bb6a,#fff176)}
+.brief-body{padding:10px;font-size:.72rem;line-height:1.45}
+.brief-body h3{font-size:.88rem;margin-bottom:4px;color:var(--navy)}
+.brief-tag{display:inline-block;background:var(--navy);color:#fff;font-size:.6rem;padding:2px 6px;border-radius:4px;margin-bottom:6px}
+.brief-row{margin-bottom:3px}
+.brief-row strong{color:var(--orange)}
+
+/* ===== CITY GLANCE ===== */
+.glance-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:1100px){.glance-grid{grid-template-columns:repeat(2,1fr)}}
+.glance-card{border:2px solid var(--border);border-radius:10px;padding:10px;font-size:.68rem;background:#fff}
+.glance-card.active{border-color:var(--orange);background:#fff8f0}
+.glance-name{font-weight:800;font-size:.78rem;margin-bottom:6px;display:flex;justify-content:space-between}
+.glance-active{font-size:.6rem;background:var(--orange);color:#fff;padding:1px 6px;border-radius:4px}
+.mini-bar{display:flex;align-items:center;margin-bottom:2px}
+.mini-label{width:36px;font-weight:600;flex-shrink:0}
+.mini-bg{flex:1;height:8px;background:#e9ecef;border-radius:4px;overflow:hidden;margin:0 4px}
+.mini-fill{height:100%;border-radius:4px}
+.mini-val{width:22px;text-align:right;font-weight:700}
+
+/* ===== INVESTMENTS ===== */
+.timer-pill{background:var(--navy);color:#fff;padding:4px 12px;border-radius:20px;font-weight:800;font-size:.85rem}
+.cat-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.cat-tab{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.7rem;font-weight:600;color:var(--navy)}
+.cat-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.inv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-height:220px;overflow-y:auto}
+@media(max-width:1100px){.inv-grid{grid-template-columns:repeat(3,1fr)}}
+.inv-card{border:2px solid var(--border);border-radius:10px;padding:10px 8px;font-size:.7rem;cursor:pointer;transition:.12s;text-align:center;background:#fff}
+.inv-card:hover:not(.disabled){border-color:var(--green);background:var(--light-green)}
+.inv-card.selected{border-color:var(--orange);background:#fff3e0;box-shadow:inset 0 0 0 1px var(--orange)}
+.inv-card.disabled{opacity:.4;cursor:not-allowed}
+.inv-icon{font-size:1.5rem;margin-bottom:4px}
+.inv-name{font-weight:700;line-height:1.2;margin-bottom:3px}
+.inv-cost{color:var(--orange);font-weight:800;margin-bottom:4px}
+.inv-fx{font-size:.62rem;line-height:1.35}
+.inv-fx .pos{color:var(--green)} .inv-fx .neg{color:var(--red)}
+.inv-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:2px solid var(--border);flex-wrap:wrap;gap:10px}
+.inv-stats{font-size:.82rem;line-height:1.6}
+.inv-stats strong{color:var(--navy)}
+
+/* ===== RIGHT SIDEBAR: NEWSPAPER & BANK ===== */
+.newspaper{background:#faf8f0;border:2px solid var(--navy);padding:14px;font-family:Georgia,serif;margin-bottom:14px}
+.np-masthead{text-align:center;border-bottom:2px solid var(--navy);padding-bottom:8px;margin-bottom:10px}
+.np-name{font-size:1.1rem;font-weight:900;letter-spacing:1px}
+.np-edition{font-size:.72rem;color:#666;margin-top:2px}
+.np-headline{font-size:.95rem;font-weight:700;margin:10px 0;line-height:1.3;color:var(--navy-dark)}
+.np-img{height:60px;background:linear-gradient(135deg,#a5d6a7,#81d4fa);border-radius:6px;margin:8px 0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.np-at-glance{font-size:.78rem;margin:10px 0}
+.np-stat-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #ccc}
+.np-stat-row .up{color:var(--green);font-weight:700}
+.np-stat-row .down{color:var(--red);font-weight:700}
+.np-what{font-size:.78rem;margin-top:10px}
+.np-what h5{font-family:'Segoe UI',sans-serif;font-size:.72rem;text-transform:uppercase;margin-bottom:6px;color:var(--navy-light)}
+.np-what li{margin-bottom:4px;margin-left:16px}
+
+.bank-section h4{font-size:.85rem;margin-bottom:10px;color:var(--navy)}
+.loan-card{border:2px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;font-size:.75rem;background:#fff}
+.loan-card h5{font-size:.82rem;margin-bottom:4px;color:var(--navy)}
+.loan-amt{color:var(--green);font-weight:800;font-size:.9rem}
+.loan-repay{color:#666;font-size:.7rem;margin:4px 0 8px}
+.bank-warn{background:#fff3cd;border:1px solid var(--yellow);border-radius:8px;padding:8px;font-size:.72rem;margin-top:8px;line-height:1.4}
+
+/* ===== FOOTER ===== */
+.app-footer{background:var(--navy-dark);color:#fff;padding:16px 20px}
+.footer-learn{display:grid;grid-template-columns:repeat(5,1fr) auto;gap:14px;align-items:start}
+@media(max-width:1000px){.footer-learn{grid-template-columns:repeat(2,1fr)}}
+.learn-item{text-align:center;font-size:.72rem;line-height:1.4;opacity:.9}
+.learn-icon{font-size:1.5rem;display:block;margin-bottom:4px}
+.footer-trophy{text-align:center;padding:0 16px;border-left:1px solid rgba(255,255,255,.2)}
+.footer-trophy .icon{font-size:2rem}
+.footer-trophy p{font-size:.78rem;margin-top:4px;line-height:1.4;color:var(--orange-light)}
+
+/* ===== OVERLAYS ===== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,40,64,.75);z-index:300;align-items:center;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.overlay-box{background:#fff;border-radius:14px;padding:28px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.overlay-box.wide{max-width:900px}
+.overlay-box h2{color:var(--navy);margin-bottom:14px}
+.overlay-box input{width:100%;padding:10px;border:2px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:1rem}
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.pick-banner{background:var(--orange);color:#fff;padding:10px 14px;border-radius:8px;font-weight:700;margin-bottom:10px;font-size:.88rem}
+.rename-row{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rename-row input{flex:1;min-width:140px;margin:0}
+.debt-warn{background:#f8d7da;border:1px solid var(--red);color:#721c24;padding:8px 12px;border-radius:8px;font-size:.82rem;margin-bottom:8px}
+.np-overlay-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.np-overlay-grid{grid-template-columns:1fr}}
+.final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.rank-card{border:2px solid var(--border);border-radius:10px;padding:12px;font-size:.85rem;background:#f8f9fa}
+.rank-card.highlight{border-color:var(--green);background:var(--light-green)}
+.rank-title{font-weight:800;color:var(--orange);margin-bottom:4px;font-size:.78rem}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- SETUP OVERLAY -->
+<div class="overlay show" id="setup-overlay">
+  <div class="overlay-box">
+    <h2>🏙️ Build Your Town</h2>
+    <p style="margin-bottom:14px;line-height:1.6">50 years of city planning. Enter student names to begin.</p>
+    <div class="name-grid">
+      <input type="text" id="sn1" placeholder="Student 1 (e.g. Anna)" maxlength="24">
+      <input type="text" id="sn2" placeholder="Student 2 (e.g. Ben)" maxlength="24">
+      <input type="text" id="sn3" placeholder="Student 3 (e.g. Chloe)" maxlength="24">
+      <input type="text" id="sn4" placeholder="Student 4 (e.g. Dylan)" maxlength="24">
+    </div>
+    <button class="btn btn-primary btn-block" id="btn-start-game">Start Game →</button>
+  </div>
+</div>
+
+<!-- NEWSPAPER OVERLAY (between rounds) -->
+<div class="overlay" id="newspaper-overlay">
+  <div class="overlay-box wide">
+    <h2>📰 Year <span id="np-year">10</span> — Newspaper Reports</h2>
+    <p style="margin-bottom:14px;color:#666">10 years have passed. Read each city's newspaper before the next round.</p>
+    <div class="np-overlay-grid" id="newspaper-grid"></div>
+    <button class="btn btn-primary btn-block" id="btn-next-round" style="margin-top:16px">Continue →</button>
+  </div>
+</div>
+
+<!-- FINAL OVERLAY -->
+<div class="overlay" id="final-overlay">
+  <div class="overlay-box wide">
+    <h2 style="text-align:center">🏆 Final Report — 50 Years Later</h2>
+    <p style="text-align:center;color:var(--orange);font-weight:700;margin-bottom:16px" id="final-subtitle"></p>
+    <div class="final-grid" id="final-rankings"></div>
+    <div class="glance-grid" id="final-cities"></div>
+    <button class="btn btn-primary btn-block" id="btn-restart" style="margin-top:16px">Restart Game 🔄</button>
+  </div>
+</div>
+
+<!-- HOW TO PLAY -->
+<div class="overlay" id="help-overlay">
+  <div class="overlay-box">
+    <h2>📋 How to Play</h2>
+    <ul style="padding-left:20px;line-height:1.8;font-size:.9rem;margin-bottom:14px">
+      <li>Spin the wheel to assign students to cities</li>
+      <li>Read city briefings (3 min) and plan your strategy</li>
+      <li>Each round = 10 years. Pick investments (2 min per round)</li>
+      <li>Balance Budget, Happiness, Population, Education, Health, Environment</li>
+      <li>Borrow wisely from the bank — debt has consequences!</li>
+      <li>Win with the best long-term score, not just the most money</li>
+    </ul>
+    <button class="btn btn-primary" id="close-help">Got it!</button>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<header class="app-header">
+  <div class="header-left">
+    <span style="font-size:1.4rem">🏙️</span>
+    <span class="header-logo">BUILD YOUR TOWN</span>
+  </div>
+  <div class="round-tracker" id="round-tracker"></div>
+  <div class="header-actions">
+    <button class="btn btn-navy btn-sm" id="btn-help">❓ How to Play</button>
+    <button class="btn btn-navy btn-sm" id="btn-restart-header">🔄 Restart</button>
+    <button class="btn btn-primary btn-sm" id="btn-teacher">🎓 Teacher Mode</button>
+  </div>
+</header>
+
+<div class="dashboard">
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+    <div class="wheel-box">
+      <h4 style="font-size:.8rem;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">🎡 Assign Students</h4>
+      <div class="wheel-container">
+        <div class="wheel-pointer">▼</div>
+        <canvas id="wheel-canvas" width="180" height="180"></canvas>
+      </div>
+      <p class="spin-result" id="spin-result"></p>
+      <button class="btn btn-primary btn-block" id="btn-spin">Spin Wheel</button>
+    </div>
+    <ul class="student-list" id="student-list"></ul>
+
+    <div class="sidebar-section">
+      <h4>Game Overview</h4>
+      <ul>
+        <li>5 rounds × 10 years = 50 years</li>
+        <li>Goal: Money <strong>AND</strong> Happiness</li>
+        <li>Balance: Economy, People, Education, Health, Environment</li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <h4>Quick Actions (Teacher)</h4>
+      <button class="btn btn-green btn-block" id="skip-timer">⏭ Skip Timer</button>
+      <button class="btn btn-blue btn-block" id="btn-simulate">⚡ Simulate Round</button>
+      <button class="btn btn-red btn-block" id="btn-reset">🔄 Reset Game</button>
+    </div>
+  </aside>
+
+  <!-- CENTER -->
+  <main class="main-center">
+    <div id="pick-banner" class="pick-banner hidden"></div>
+    <div id="debt-warnings"></div>
+
+    <!-- City Briefing -->
+    <div class="panel" id="panel-briefing">
+      <div class="panel-head orange">
+        <span>📋 City Briefing — Choose Your City</span>
+        <span class="timer-pill" id="brief-timer">3:00</span>
+      </div>
+      <div class="panel-body">
+        <div class="brief-grid" id="brief-grid"></div>
+        <div class="rename-row hidden" id="rename-row">
+          <label style="font-size:.85rem;font-weight:600">Rename city:</label>
+          <input type="text" id="city-rename" placeholder="Custom name" maxlength="24">
+          <button class="btn btn-primary btn-sm" id="btn-confirm-city" disabled>Confirm City →</button>
+        </div>
+        <div style="text-align:center;margin-top:12px" id="start-round-wrap" class="hidden">
+          <button class="btn btn-primary" id="btn-start-round1">Begin Round 1 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cities at a Glance -->
+    <div class="panel" id="panel-glance">
+      <div class="panel-head"><span>🏙️ All Cities At A Glance</span><span id="round-label" style="font-size:.78rem;color:#666">Round 1</span></div>
+      <div class="panel-body"><div class="glance-grid" id="glance-grid"></div></div>
+    </div>
+
+    <!-- Investments -->
+    <div class="panel" id="panel-invest">
+      <div class="panel-head">
+        <span>💼 Choose Your Investments — <strong id="active-mayor">—</strong></span>
+        <span class="timer-pill" id="round-timer">2:00</span>
+      </div>
+      <div class="panel-body">
+        <div class="cat-tabs" id="cat-tabs"></div>
+        <div class="inv-grid" id="inv-grid"></div>
+        <div class="inv-footer">
+          <div class="inv-stats">
+            <div><strong>Selected:</strong> <span id="cart-list">None</span></div>
+            <div><strong>Total Cost:</strong> $<span id="cart-cost">0</span>M &nbsp;|&nbsp; <strong>Remaining Budget:</strong> $<span id="remaining-budget">0</span>M</div>
+          </div>
+          <button class="btn btn-primary" id="btn-confirm-inv" style="padding:12px 28px;font-size:.95rem">Confirm Choices →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right">
+    <div class="panel-head orange" style="border-radius:10px 10px 0 0;border:1px solid var(--border);border-bottom:none">📰 Round Summary</div>
+    <div class="panel-body" style="border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;margin-bottom:14px;padding:0">
+      <div id="sidebar-newspaper"></div>
+    </div>
+
+    <div class="bank-section">
+      <h4>🏦 The Bank</h4>
+      <div id="bank-loans"></div>
+      <div class="bank-warn">⚠️ Loans have interest. Borrow wisely — debt reduces your final score!</div>
+    </div>
+  </aside>
+</div>
+
+<footer class="app-footer">
+  <div class="footer-learn">
+    <div class="learn-item"><span class="learn-icon">⚖️</span><strong>Trade-offs Matter</strong><br>Every choice has a cost</div>
+    <div class="learn-item"><span class="learn-icon">🌱</span><strong>Long-term Thinking</strong><br>Plan for 50 years</div>
+    <div class="learn-item"><span class="learn-icon">🏙️</span><strong>Balance is Key</strong><br>Not just money!</div>
+    <div class="learn-item"><span class="learn-icon">👥</span><strong>People Decide</strong><br>Happiness keeps citizens</div>
+    <div class="learn-item"><span class="learn-icon">🏦</span><strong>Debt is a Tool</strong><br>Use carefully</div>
+    <div class="footer-trophy">
+      <div class="icon">🏆</div>
+      <p><strong>WINNING ISN'T JUST ABOUT MONEY.</strong><br>Build the best city for everyone!</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ================================================================
+   TEACHER CONFIGURATION
+   ================================================================ */
+const TOTAL_ROUNDS = 5;
+const YEARS_PER_ROUND = 10;
+const BRIEFING_SECONDS = 180;
+const ROUND_SECONDS = 120;
+const START_BUDGET = 1000;
+const START_POP = 50000;
+const START_STAT = 50;
+const MIN_EVENTS_PER_CITY = 2;
+const PHASE_NAMES = ['Survival','Growth','Development','Modernization','Legacy'];
+
+const LOANS = [
+  { id:'small', name:'Small Loan', amount:200, repay:240, dueRounds:2 },
+  { id:'medium', name:'Medium Loan', amount:500, repay:650, dueRounds:3 },
+  { id:'emergency', name:'Emergency Loan', amount:300, repay:450, dueRounds:1 }
+];
+const REFINANCE_MULTIPLIER = 1.25;
+
+const INV_ICONS = {
+  roads:'🛤️',port:'⚓',airport:'✈️',industrial:'🏭',taxcut:'💰',schools:'🏫',teachers:'👩‍🏫',
+  scholarships:'🎓',university:'🎓',youth:'👦',clinic:'🏥',hospital:'🏨',housing:'🏘️',childcare:'👶',
+  elderly:'👴',floodwall:'🌊',park:'🌳',wildlife:'🦌',rangers:'🧑‍🚒',ecotour:'🌿',reforest:'🌲',
+  farms:'🚜',cutforest:'🪓',irrigation:'💧',agcollege:'🌾',foodstore:'🏪',solar:'☀️',wind:'💨',
+  hydro:'⚡',ebuses:'🚌',research:'🔬'
+};
+
+const CAT_LABELS = {
+  'Economy':'Economy & Infrastructure','Human Capital':'Human Capital','Health':'Health & Welfare',
+  'Environment':'Environment & Tourism','Food':'Food & Agriculture','Green Energy':'Green Energy'
+};
+
+const BAR_COLORS = { pop:'#1a3a5c', happiness:'#ffc107', economy:'#e87722', education:'#2a5080', health:'#dc3545', environment:'#28a745', employment:'#795548', food:'#f5a623' };
+
+const CITY_TYPES = [
+  { id:'riverbend', name:'Riverbend', artClass:'art-riverbend', emoji:'🌊', tag:'Agricultural',
+    strength:'Good water access, farming potential', challenge:'High flood risk',
+    specialRisk:'Floods worse if forests are cut down',
+    strategies:['🌾 Agriculture','⚡ Green energy','🌊 Flood protection','🌲 Reforestation'],
+    extras:{ floodRisk:65, food:55, environment:55 } },
+  { id:'ironvale', name:'Ironvale', artClass:'art-ironvale', emoji:'🏭', tag:'Industrial',
+    strength:'Minerals and factory potential', challenge:'Pollution and worker health',
+    specialRisk:'Disease and protests worse if health/happiness ignored',
+    strategies:['🏭 Manufacturing','🛤️ Roads','🏥 Healthcare','🏘️ Worker housing'],
+    extras:{ pollution:40, economy:55 } },
+  { id:'sunport', name:'Sunport', artClass:'art-sunport', emoji:'✈️', tag:'Coastal / Trade',
+    strength:'Trade and tourism potential', challenge:'Expensive infrastructure',
+    specialRisk:'Oil price spikes hurt road/airport-dependent cities',
+    strategies:['⚓ Port','✈️ Airport','🏖️ Tourism','🚌 Public transport'],
+    extras:{ trade:55, tourism:50, roadDependency:45 } },
+  { id:'greenhill', name:'Greenhill', artClass:'art-greenhill', emoji:'🌲', tag:'Eco-Tourism',
+    strength:'Natural beauty and wildlife', challenge:'Weak economy at start',
+    specialRisk:'Tourism collapses if environment is damaged',
+    strategies:['🌿 Eco-tourism','🌳 Parks','📚 Education','🌲 Conservation','⚡ Green energy'],
+    extras:{ tourism:45, environment:65, economy:38 } }
+];
+
+const INVESTMENTS = [
+  { cat:'Economy', id:'roads', name:'Build Roads', cost:150, effects:{economy:8,employment:6,environment:-4}, flags:{roadDependency:5} },
+  { cat:'Economy', id:'port', name:'Build Port', cost:300, effects:{economy:12,employment:10}, flags:{trade:15}, cities:['sunport','riverbend'] },
+  { cat:'Economy', id:'airport', name:'Build Airport', cost:400, effects:{economy:14,employment:8,environment:-6}, flags:{roadDependency:8}, cities:['sunport'] },
+  { cat:'Economy', id:'industrial', name:'Industrial Zone', cost:350, effects:{economy:14,employment:12,health:-6,environment:-8,happiness:-3}, flags:{pollution:10} },
+  { cat:'Economy', id:'taxcut', name:'Lower Business Taxes', cost:100, effects:{economy:10,happiness:3}, flags:{govRevenue:-5} },
+  { cat:'Human Capital', id:'schools', name:'Build Schools', cost:200, effects:{education:12,happiness:5} },
+  { cat:'Human Capital', id:'teachers', name:'Teacher Training', cost:150, effects:{education:10} },
+  { cat:'Human Capital', id:'scholarships', name:'Scholarships', cost:120, effects:{education:8,happiness:5} },
+  { cat:'Human Capital', id:'university', name:'Build University', cost:450, effects:{education:18,economy:6,happiness:4} },
+  { cat:'Human Capital', id:'youth', name:'Youth Skills Program', cost:180, effects:{employment:8,education:6} },
+  { cat:'Health', id:'clinic', name:'Build Clinic', cost:180, effects:{health:12,happiness:4} },
+  { cat:'Health', id:'hospital', name:'Build Hospital', cost:450, effects:{health:20,employment:6,happiness:3} },
+  { cat:'Health', id:'housing', name:'Public Housing', cost:300, effects:{happiness:10,health:4}, flags:{retention:8} },
+  { cat:'Health', id:'childcare', name:'Childcare Support', cost:200, effects:{happiness:8,health:3}, flags:{popGrowth:5} },
+  { cat:'Health', id:'elderly', name:'Elderly Care', cost:180, effects:{happiness:6,health:8} },
+  { cat:'Environment', id:'floodwall', name:'Flood Protection', cost:220, effects:{environment:4,happiness:3}, flags:{floodProtect:1,floodRisk:-8} },
+  { cat:'Environment', id:'park', name:'Build Park', cost:120, effects:{happiness:8,environment:10}, flags:{tourism:3} },
+  { cat:'Environment', id:'wildlife', name:'Wildlife Protection', cost:150, effects:{environment:12}, flags:{tourism:8} },
+  { cat:'Environment', id:'rangers', name:'Ranger Training', cost:100, effects:{environment:8,employment:4} },
+  { cat:'Environment', id:'ecotour', name:'Eco-Tourism Campaign', cost:200, effects:{economy:8,happiness:6}, flags:{tourism:10}, requires:{environment:45} },
+  { cat:'Environment', id:'reforest', name:'Reforestation', cost:180, effects:{environment:14}, flags:{floodRisk:-10,floodProtect:1} },
+  { cat:'Food', id:'farms', name:'Build Farms', cost:200, effects:{food:15,employment:8,environment:-4} },
+  { cat:'Food', id:'cutforest', name:'Cut Forest for Farmland', cost:100, effects:{food:12,employment:5,environment:-12}, flags:{floodRisk:12} },
+  { cat:'Food', id:'irrigation', name:'Irrigation System', cost:250, effects:{food:12,environment:-2}, flags:{droughtProtect:1} },
+  { cat:'Food', id:'agcollege', name:'Agricultural College', cost:220, effects:{food:8,education:8} },
+  { cat:'Food', id:'foodstore', name:'Food Storage', cost:180, effects:{food:6,happiness:3}, flags:{foodProtect:1} },
+  { cat:'Green Energy', id:'solar', name:'Solar Farm', cost:250, effects:{economy:8,environment:10,employment:4}, flags:{greenEnergy:1,roadDependency:-3} },
+  { cat:'Green Energy', id:'wind', name:'Wind Farm', cost:250, effects:{economy:8,environment:10,employment:4}, flags:{greenEnergy:1} },
+  { cat:'Green Energy', id:'hydro', name:'Hydropower Dam', cost:400, effects:{economy:12,environment:-2,employment:6}, flags:{floodRisk:8,greenEnergy:1} },
+  { cat:'Green Energy', id:'ebuses', name:'Electric Buses', cost:220, effects:{happiness:6,environment:8,employment:3}, flags:{roadDependency:-5,greenEnergy:1} },
+  { cat:'Green Energy', id:'research', name:'Energy Research Center', cost:300, effects:{education:8,economy:6,environment:6} }
+];
+
+const CATEGORIES = ['Economy','Human Capital','Health','Environment','Food','Green Energy'];
+
+const EVENTS = [
+  { id:'flood', name:'Heavy Rain / Flood', icon:'🌧️', run(c){ const d={budget:0,population:0,happiness:-4,health:-3};
+    const risk=c.flags.floodRisk||30, env=c.metrics.environment;
+    if(risk>55||env<35){d.budget=-120;d.population=-800;d.happiness-=8;d.health-=5;d.msg='Major flooding! High flood risk caused severe damage.';}
+    else if(risk>35){d.budget=-60;d.population=-300;d.msg='Moderate flooding damages homes and farms.';}
+    else{d.budget=-25;d.msg='Light flooding — city handled it well.';}
+    if(c.flags.floodProtect)d.budget=Math.round(d.budget*.5); return d;} },
+  { id:'disease', name:'Disease Outbreak', icon:'🦠', run(c){ const d={health:-8,happiness:-5,population:-200};
+    if(c.metrics.health<40){d.health-=10;d.population-=500;d.msg='Weak healthcare — outbreak spreads fast!';}
+    else if(c.metrics.health>65){d.health-=3;d.population-=50;d.msg='Hospitals contained the outbreak.';}
+    else d.msg='Moderate outbreak strains clinics.'; return d;} },
+  { id:'food', name:'Food Shortage', icon:'🍞', run(c){ const d={food:-12,happiness:-6,population:-150};
+    if(c.metrics.food<35){d.happiness-=8;d.population-=400;d.msg='Critical food shortage!';}
+    else if(c.flags.foodProtect){d.food=-4;d.msg='Food storage reduced the impact.';}
+    else d.msg='Food prices spike.'; return d;} },
+  { id:'war', name:'War / Conflict', icon:'⚔️', run(c){ return {budget:-80,happiness:-10,population:-300,economy:-5,msg:'Conflict disrupts trade.'};} },
+  { id:'oil', name:'Oil Price Spike', icon:'⛽', run(c){ const dep=c.flags.roadDependency||20; const d={budget:-Math.round(40+dep*1.2),economy:-5,happiness:-4};
+    if(c.flags.greenEnergy){d.budget+=30;d.msg='Green energy reduced fuel costs!';}
+    else if(dep>50){d.budget-=30;d.msg='Road/airport dependency — fuel costs cripple budget.';}
+    else d.msg='Rising fuel costs strain economy.'; return d;} },
+  { id:'protest', name:'Community Protest', icon:'📢', run(c){ const d={happiness:-8,economy:-4,employment:-3};
+    d.msg=c.metrics.happiness<40?'Citizens protest poor conditions!':'Manageable unrest.'; return d;} },
+  { id:'brain', name:'Brain Drain', icon:'🧠', run(c){ const d={population:-400,education:-4,economy:-3,happiness:-4};
+    d.msg=c.metrics.education<40?'Workers leave for better cities!':'Some skilled workers moved away.'; return d;} },
+  { id:'climate', name:'Climate Disaster', icon:'🔥', run(c){ const d={environment:-10,budget:-70,population:-350,happiness:-6};
+    d.msg=c.metrics.environment<35?'Climate disaster hits unprotected environment.':'Damage limited by green policies.'; return d;} }
+];
+
+const SCORE_WEIGHTS = { budget:.25, happiness:.25, population:.20, eduHealth:.15, environment:.15 };
+const DEBT_PENALTY = .15, LOW_HAPPY_PENALTY = 10, LOW_ENV_PENALTY = 8;
+
+/* ===== STATE ===== */
+let students=[], remainingStudents=[], cities=[], assignments=[];
+let currentRound=1, currentMayorIdx=0, selectedInv=[], timerInterval=null;
+let eventSchedule=[], roundNewspapers=[], activeCategory=CATEGORIES[0];
+let wheelRotation=0, spinning=false, pickedCityType=null, gamePhase='setup';
+let lastNewspaperIdx=0, teacherMode=false;
+
+function initCityState(td, customName, student) {
+  return { typeId:td.id, displayName:customName||td.name, student, colorClass:td.colorClass, emoji:td.emoji,
+    metrics:{ budget:START_BUDGET, population:START_POP, happiness:START_STAT, economy:START_STAT, education:START_STAT, health:START_STAT, environment:START_STAT, employment:START_STAT, food:START_STAT },
+    flags:{...td.extras,floodRisk:td.extras.floodRisk||25,debt:0,floodProtect:0,droughtProtect:0,foodProtect:0,greenEnergy:0,roadDependency:td.extras.roadDependency||20,pollution:td.extras.pollution||0,trade:td.extras.trade||30,tourism:td.extras.tourism||30,retention:0,popGrowth:0,govRevenue:0},
+    loans:[], investments:[], eventsReceived:0, popLog:null, startPop:START_POP, whatHappened:[] };
+}
+
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+function fmt(n){return n.toLocaleString();}
+function fmtM(n){return '$'+n+'M';}
+function applyEffects(c,e){for(const[k,v]of Object.entries(e))if(c.metrics[k]!==undefined)c.metrics[k]=clamp(c.metrics[k]+v,0,100);}
+function applyFlags(c,f){if(!f)return;for(const[k,v]of Object.entries(f))c.flags[k]=(c.flags[k]||0)+v;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function setPhase(p){
+  gamePhase=p;
+  document.getElementById('panel-glance').classList.toggle('hidden',p==='assign');
+  document.getElementById('panel-invest').classList.toggle('hidden',p!=='playing');
+  document.getElementById('start-round-wrap').classList.toggle('hidden',p!=='briefing');
+}
+
+function startTimer(sec, elId){
+  clearInterval(timerInterval);
+  let t=sec; const el=document.getElementById(elId);
+  function tick(){const m=Math.floor(t/60),s=t%60;el.textContent=m+':'+String(s).padStart(2,'0');if(t<=0){clearInterval(timerInterval);return;}t--;}
+  tick(); timerInterval=setInterval(tick,1000);
+}
+
+function renderRoundTracker(){
+  let html='';
+  for(let i=1;i<=TOTAL_ROUNDS;i++){
+    if(i>1) html+=`<div class="round-line ${i<=currentRound?'done':''}"></div>`;
+    let cls='round-step';
+    if(i<currentRound||(gamePhase==='playing'&&i===currentRound)) cls+=' done';
+    else if(i===currentRound&&gamePhase!=='assign'&&gamePhase!=='briefing') cls+=' current';
+    else if(i===1&&(gamePhase==='assign'||gamePhase==='briefing')) cls+=' current';
+    html+=`<div class="${cls}"><div class="round-dot">${i<currentRound||(gamePhase==='playing'&&i<currentRound)?'✓':i}</div><span>Round ${i}</span></div>`;
+  }
+  document.getElementById('round-tracker').innerHTML=html;
+  document.getElementById('round-label').textContent=`Round ${currentRound} — ${PHASE_NAMES[currentRound-1]}`;
+}
+
+function renderStudentList(){
+  document.getElementById('student-list').innerHTML=students.map(s=>{
+    const a=assignments.find(x=>x.student===s);
+    return `<li class="${a?'assigned':''}">${a?'✅':'⏳'} ${s}${a?' → '+a.customName:''}</li>`;
+  }).join('');
+}
+
+function renderBriefGrid(){
+  const taken=assignments.map(a=>a.typeId);
+  const picking=gamePhase==='assign'&&window._currentPicker;
+  document.getElementById('brief-grid').innerHTML=CITY_TYPES.map(ct=>{
+    const a=assignments.find(x=>x.typeId===ct.id);
+    const sel=pickedCityType===ct.id;
+    return `<div class="brief-card ${taken.includes(ct.id)?'taken':''} ${sel?'selected':''}" data-id="${ct.id}">
+      <div class="brief-art ${ct.artClass}">${ct.emoji}</div>
+      <div class="brief-body">
+        <span class="brief-tag">${ct.tag}</span>
+        <h3>${a?a.customName:ct.name}${a?' ('+a.student+')':''}</h3>
+        <div class="brief-row"><strong>Strength:</strong> ${ct.strength}</div>
+        <div class="brief-row"><strong>Challenge:</strong> ${ct.challenge}</div>
+        <div class="brief-row"><strong>Special Risk:</strong> ${ct.specialRisk}</div>
+        <div class="brief-row"><strong>Strategies:</strong> ${ct.strategies.join(' · ')}</div>
+      </div></div>`;
+  }).join('');
+  document.querySelectorAll('.brief-card:not(.taken)').forEach(el=>{
+    if(!picking)return;
+    el.addEventListener('click',()=>{
+      document.querySelectorAll('.brief-card').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected'); pickedCityType=el.dataset.id;
+      document.getElementById('btn-confirm-city').disabled=false;
+      document.getElementById('rename-row').classList.remove('hidden');
+    });
+  });
+}
+
+function renderGlance(){
+  if(!cities.length){document.getElementById('glance-grid').innerHTML='<p style="font-size:.85rem;color:#888">Assign cities to begin.</p>';return;}
+  const keys=[{k:'population',l:'Pop'},{k:'happiness',l:'Happy'},{k:'economy',l:'Econ'},{k:'education',l:'Educ'},{k:'health',l:'Health'},{k:'environment',l:'Env'},{k:'employment',l:'Jobs'},{k:'food',l:'Food'}];
+  document.getElementById('glance-grid').innerHTML=cities.map((c,i)=>{
+    const bars=keys.map(({k,l})=>{
+      const v=c.metrics[k];
+      const pct=k==='population'?Math.min(100,v/1000):v;
+      return `<div class="mini-bar"><span class="mini-label">${l}</span><div class="mini-bg"><div class="mini-fill" style="width:${pct}%;background:${BAR_COLORS[k]||'var(--navy)'}"></div></div><span class="mini-val">${k==='population'?(v/1000).toFixed(0)+'k':v}</span></div>`;
+    }).join('');
+    return `<div class="glance-card ${i===currentMayorIdx&&gamePhase==='playing'?'active':''}">
+      <div class="glance-name"><span>${c.emoji} ${c.displayName}</span>${i===currentMayorIdx&&gamePhase==='playing'?'<span class="glance-active">ACTIVE</span>':''}</div>
+      <div style="font-size:.65rem;color:#888;margin-bottom:4px">${c.student} · ${fmtM(c.metrics.budget)}</div>${bars}</div>`;
+  }).join('');
+}
+
+function renderCategoryTabs(){
+  document.getElementById('cat-tabs').innerHTML=CATEGORIES.map(cat=>
+    `<button class="cat-tab ${cat===activeCategory?'active':''}" data-cat="${cat}">${CAT_LABELS[cat]||cat}</button>`).join('');
+  document.querySelectorAll('.cat-tab').forEach(btn=>btn.addEventListener('click',()=>{activeCategory=btn.dataset.cat;renderCategoryTabs();renderInvestments();}));
+}
+
+function canBuy(city,inv){
+  if(city.metrics.budget<inv.cost)return false;
+  if(inv.requires)for(const[k,v]of Object.entries(inv.requires))if((city.metrics[k]||city.flags[k]||0)<v)return false;
+  if(inv.cities&&!inv.cities.includes(city.typeId))return false;
+  return true;
+}
+
+function renderInvestments(){
+  if(!cities.length||gamePhase!=='playing')return;
+  const city=cities[currentMayorIdx];
+  document.getElementById('active-mayor').textContent=city.displayName+' ('+city.student+')';
+  document.getElementById('remaining-budget').textContent=city.metrics.budget;
+  const list=INVESTMENTS.filter(i=>i.cat===activeCategory);
+  document.getElementById('inv-grid').innerHTML=list.map(inv=>{
+    const ok=canBuy(city,inv), sel=selectedInv.includes(inv.id);
+    const fx=Object.entries(inv.effects||{}).map(([k,v])=>`<span class="${v>0?'pos':'neg'}">${v>0?'+':'-'}${Math.abs(v)} ${k}</span>`).join(' ');
+    return `<div class="inv-card ${ok?'':'disabled'} ${sel?'selected':''}" data-id="${inv.id}">
+      <div class="inv-icon">${INV_ICONS[inv.id]||'🏗️'}</div>
+      <div class="inv-name">${inv.name}</div><div class="inv-cost">${fmtM(inv.cost)}</div>
+      <div class="inv-fx">${fx}</div></div>`;
+  }).join('');
+  document.querySelectorAll('.inv-card:not(.disabled)').forEach(el=>el.addEventListener('click',()=>{
+    const id=el.dataset.id;
+    selectedInv=selectedInv.includes(id)?selectedInv.filter(x=>x!==id):[...selectedInv,id];
+    renderInvestments();updateCart();
+  }));
+}
+
+function updateCart(){
+  if(!cities.length)return;
+  let cost=0;
+  const names=selectedInv.map(id=>{const inv=INVESTMENTS.find(i=>i.id===id);cost+=inv.cost;return inv.name;});
+  document.getElementById('cart-list').textContent=names.length?names.join(', '):'None';
+  document.getElementById('cart-cost').textContent=cost;
+  if(cities[currentMayorIdx]) document.getElementById('remaining-budget').textContent=cities[currentMayorIdx].metrics.budget-cost;
+}
+
+function renderBank(){
+  const city=cities[currentMayorIdx]||cities[0];
+  document.getElementById('bank-loans').innerHTML=LOANS.map(l=>`
+    <div class="loan-card"><h5>${l.name}</h5><div class="loan-amt">+${fmtM(l.amount)}</div>
+    <div class="loan-repay">Repay ${fmtM(l.repay)} in ${l.dueRounds} round(s)</div>
+    <button class="btn btn-navy btn-sm btn-block take-loan" data-loan="${l.id}" ${!city?'disabled':''}>Take Loan</button></div>`).join('');
+  document.querySelectorAll('.take-loan').forEach(btn=>btn.addEventListener('click',()=>{
+    if(gamePhase!=='playing'&&!teacherMode)return;
+    takeLoan(cities[currentMayorIdx],btn.dataset.loan);
+  }));
+}
+
+function renderSidebarNewspaper(np){
+  if(!np){
+    document.getElementById('sidebar-newspaper').innerHTML=`<div style="padding:14px;font-size:.82rem;color:#888;text-align:center">
+      📰 Newspaper reports appear here after each round.</div>`; return;
+  }
+  const d=(a,b)=>{const x=b-a;return x>0?`<span class="up">(+${x})</span>`:x<0?`<span class="down">(${x})</span>`:'';};
+  document.getElementById('sidebar-newspaper').innerHTML=`
+    <div class="newspaper">
+      <div class="np-masthead"><div class="np-name">${np.city.toUpperCase()} TIMES</div><div class="np-edition">Year ${np.year} · Special Edition</div></div>
+      <div class="np-headline">${np.headline}</div>
+      <div class="np-img">${np.event?np.event.icon:'🏙️'}</div>
+      <p style="font-size:.78rem;line-height:1.5;margin-bottom:8px">${np.explain.slice(0,180)}…</p>
+      <div class="np-at-glance"><strong style="font-size:.72rem">AT A GLANCE</strong>
+        <div class="np-stat-row"><span>Budget</span><span>${fmtM(np.after.metrics.budget)} ${d(np.before.metrics.budget,np.after.metrics.budget)}</span></div>
+        <div class="np-stat-row"><span>Population</span><span>${fmt(np.after.population)} ${d(np.before.population,np.after.population)}</span></div>
+        <div class="np-stat-row"><span>Happiness</span><span>${np.after.metrics.happiness} ${d(np.before.metrics.happiness,np.after.metrics.happiness)}</span></div>
+        <div class="np-stat-row"><span>Environment</span><span>${np.after.metrics.environment} ${d(np.before.metrics.environment,np.after.metrics.environment)}</span></div>
+        <div class="np-stat-row"><span>Debt</span><span>${fmtM(np.after.debt)}</span></div>
+      </div>
+      <div class="np-what"><h5>What Happened?</h5><ul>${(np.whatHappened||[]).map(w=>'<li>'+w+'</li>').join('')||'<li>City continued to develop.</li>'}</ul></div>
+    </div>`;
+}
+
+function refreshUI(){
+  renderRoundTracker(); renderStudentList(); renderBriefGrid(); renderGlance();
+  renderCategoryTabs(); renderInvestments(); updateCart(); renderBank(); updateDebtWarnings();
+}
+
+/* ===== WHEEL ===== */
+function drawWheel(names){
+  const canvas=document.getElementById('wheel-canvas'), ctx=canvas.getContext('2d');
+  const cx=90,cy=90,r=82, colors=['#e87722','#28a745','#2a5080','#f5a623','#dc3545','#6f42c1'];
+  ctx.clearRect(0,0,180,180);
+  if(!names.length)return;
+  const slice=2*Math.PI/names.length;
+  names.forEach((name,i)=>{
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,i*slice+wheelRotation,(i+1)*slice+wheelRotation);
+    ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.strokeStyle='#fff';ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(i*slice+slice/2+wheelRotation);
+    ctx.fillStyle='#fff';ctx.font='bold 10px Segoe UI';ctx.textAlign='right';
+    ctx.fillText(name.length>10?name.slice(0,9)+'…':name,r-8,3);ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(cx,cy,14,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();
+}
+
+function spinWheel(){
+  if(spinning||!remainingStudents.length)return;
+  spinning=true; document.getElementById('btn-spin').disabled=true;
+  const winner=remainingStudents[Math.floor(Math.random()*remainingStudents.length)];
+  const target=wheelRotation+(4+Math.random()*4)*2*Math.PI;
+  let start=wheelRotation,frame=0;
+  (function anim(){
+    frame++; wheelRotation=start+(target-start)*Math.min(1,frame/70);
+    drawWheel(remainingStudents);
+    if(frame<70)requestAnimationFrame(anim);
+    else{spinning=false;document.getElementById('btn-spin').disabled=false;
+      document.getElementById('spin-result').textContent='🎉 '+winner+' — pick your city!';
+      document.getElementById('pick-banner').textContent='🎯 '+winner+', choose your city below!';
+      document.getElementById('pick-banner').classList.remove('hidden');
+      window._currentPicker=winner; pickedCityType=null;
+      document.getElementById('rename-row').classList.remove('hidden');
+      document.getElementById('btn-confirm-city').disabled=true;
+      renderBriefGrid();
+    }
+  })();
+}
+
+function confirmCity(){
+  const type=CITY_TYPES.find(c=>c.id===pickedCityType);
+  if(!type)return;
+  const rename=document.getElementById('city-rename').value.trim();
+  assignments.push({student:window._currentPicker,typeId:type.id,customName:rename||type.name});
+  remainingStudents=remainingStudents.filter(s=>s!==window._currentPicker);
+  document.getElementById('pick-banner').classList.add('hidden');
+  document.getElementById('rename-row').classList.add('hidden');
+  document.getElementById('city-rename').value='';
+  document.getElementById('btn-confirm-city').disabled=true; pickedCityType=null;
+  document.getElementById('spin-result').textContent='';
+  renderStudentList(); renderBriefGrid();
+  if(remainingStudents.length===0){
+    cities=assignments.map(a=>initCityState(CITY_TYPES.find(c=>c.id===a.typeId),a.customName,a.student));
+    scheduleEvents(); showBriefing();
+  } else drawWheel(remainingStudents);
+}
+
+function scheduleEvents(){eventSchedule=cities.map(()=>shuffle([1,2,3,4,5]).slice(0,MIN_EVENTS_PER_CITY));}
+
+function showBriefing(){
+  setPhase('briefing'); gamePhase='briefing';
+  document.getElementById('panel-briefing').querySelector('.panel-head span:first-child').textContent='📋 City Briefing — Read & Plan';
+  startTimer(BRIEFING_SECONDS,'brief-timer'); refreshUI();
+}
+
+function startRound(){
+  setPhase('playing'); gamePhase='playing';
+  currentMayorIdx=0; selectedInv=[];
+  document.getElementById('panel-briefing').classList.add('hidden');
+  startTimer(ROUND_SECONDS,'round-timer');
+  playMayorTurn(); refreshUI();
+}
+
+function playMayorTurn(){
+  selectedInv=[]; renderGlance(); renderInvestments(); updateCart(); renderBank(); updateDebtWarnings();
+}
+
+function confirmMayorInvestments(){
+  const city=cities[currentMayorIdx];
+  let cost=0; selectedInv.forEach(id=>{cost+=INVESTMENTS.find(i=>i.id===id).cost;});
+  if(cost>city.metrics.budget){alert('Not enough budget! Take a loan from the bank first.');return;}
+  selectedInv.forEach(id=>{
+    const inv=INVESTMENTS.find(i=>i.id===id);
+    if(!canBuy(city,inv))return;
+    city.metrics.budget-=inv.cost; applyEffects(city,inv.effects); applyFlags(city,inv.flags);
+    city.investments.push({round:currentRound,name:inv.name});
+  });
+  selectedInv=[]; currentMayorIdx++;
+  if(currentMayorIdx>=cities.length) simulateRound();
+  else playMayorTurn();
+}
+
+function takeLoan(city,loanId){
+  const l=LOANS.find(x=>x.id===loanId);
+  city.metrics.budget+=l.amount; city.flags.debt+=l.repay;
+  city.loans.push({repay:l.repay,dueRound:currentRound+l.dueRounds,id:l.id});
+  renderGlance(); renderInvestments(); updateCart(); updateDebtWarnings();
+}
+
+function processLoanRepayments(city){
+  city.loans=city.loans.filter(loan=>{
+    if(currentRound>=loan.dueRound){
+      if(city.metrics.budget>=loan.repay){city.metrics.budget-=loan.repay;city.flags.debt-=loan.repay;}
+      else{const short=loan.repay-city.metrics.budget;city.metrics.budget=0;
+        const ref=Math.round(short*REFINANCE_MULTIPLIER);
+        city.flags.debt=city.flags.debt-loan.repay+ref;
+        city.loans.push({repay:ref,dueRound:currentRound+1,id:'refinance'});
+        city._refinanced=true; city.whatHappened.push('Could not repay loan — refinanced at higher interest.');}
+      return false;
+    }return true;
+  });
+}
+
+function updateDebtWarnings(){
+  if(!cities.length)return;
+  document.getElementById('debt-warnings').innerHTML=cities.filter(c=>c.flags.debt>400||(c.metrics.budget<100&&c.flags.debt>0))
+    .map(c=>`<div class="debt-warn">⚠️ <strong>${c.displayName}</strong>: ${c.flags.debt>400?'Dangerous debt ('+fmtM(c.flags.debt)+')!':'Low budget with debt outstanding.'}</div>`).join('');
+}
+
+function simulateRound(){
+  clearInterval(timerInterval);
+  roundNewspapers=[];
+  cities.forEach((city,ci)=>{
+    const before=JSON.parse(JSON.stringify({metrics:city.metrics,population:city.metrics.population,debt:city.flags.debt}));
+    city.whatHappened=[];
+    processLoanRepayments(city);
+    if(eventSchedule[ci]&&eventSchedule[ci].includes(currentRound)){
+      const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+      const result=ev.run(city); const msg=result.msg||ev.name; delete result.msg;
+      if(result.budget)city.metrics.budget+=result.budget;
+      if(result.population)city.metrics.population=Math.max(10000,city.metrics.population+result.population);
+      for(const[k,v]of Object.entries(result))if(city.metrics[k]!==undefined&&k!=='budget'&&k!=='population')city.metrics[k]=clamp(city.metrics[k]+v,0,100);
+      city.eventsReceived++; city._lastEvent={name:ev.name,icon:ev.icon,msg};
+      city.whatHappened.push(ev.icon+' '+ev.name+': '+msg);
+    }
+    if(city.typeId==='greenhill'&&city.metrics.environment<35){
+      city.metrics.economy=clamp(city.metrics.economy-8,0,100); city.metrics.happiness=clamp(city.metrics.happiness-6,0,100);
+      city.whatHappened.push('📉 Tourism collapsed — environment was damaged.');
+    }
+    const pop=simulatePopulation(city); city.popLog=pop; city.metrics.population=pop.newPop;
+    city.whatHappened.push(`👶 +${fmt(pop.born)} born, 📥 +${fmt(pop.movedIn)} moved in, 📤 -${fmt(pop.movedAway)} left`);
+    city.metrics.budget+=Math.max(0,Math.round(city.metrics.economy*1.2+(city.flags.govRevenue||0)*-.5));
+    city._newspaper=generateNewspaper(city,before);
+    roundNewspapers.push(city._newspaper);
+  });
+  showNewspapers();
+}
+
+function simulatePopulation(city){
+  const m=city.metrics;
+  const born=Math.round(m.population*.012*(m.health/50)*(1+(city.flags.popGrowth||0)/100));
+  let movedIn=Math.round(m.population*.008*(m.happiness/50)*(m.employment/50)*(1+(city.flags.retention||0)/100));
+  let movedAway=Math.round(m.population*.006*(1-m.happiness/100)*(1-m.employment/100));
+  if(m.education>55)movedIn+=Math.round(m.population*.003);
+  if(m.education<35&&m.happiness<45)movedAway+=Math.round(m.population*.008);
+  const crisis=city._lastEvent?Math.round(m.population*.005):0;
+  movedAway+=crisis;
+  return{born,movedIn,movedAway:movedAway+crisis,newPop:Math.max(15000,m.population+born+movedIn-movedAway)};
+}
+
+function generateNewspaper(city,before){
+  const m=city.metrics;
+  const invs=city.investments.filter(i=>i.round===currentRound).map(i=>i.name);
+  let headline='A decade of change';
+  if(invs.length)headline=invs[0].toUpperCase()+' SHAPES THE DECADE';
+  if(city._lastEvent)headline=city._lastEvent.name.toUpperCase()+' HITS '+city.displayName.toUpperCase();
+  if(invs.includes('Build Farms')||invs.includes('Cut Forest for Farmland'))headline='FARMS FLOURISH, BUT FLOOD RISK RISES';
+  let explain='';
+  if(invs.length)explain+=city.displayName+' invested in '+invs.join(', ')+'. ';
+  if(m.happiness>before.metrics.happiness)explain+='Citizens grew happier. ';
+  if(m.environment<before.metrics.environment-5){explain+='Environmental quality declined. ';city.whatHappened.push('🌳 Environment dropped — future risks may increase.');}
+  if(city.flags.floodRisk>50){explain+='Flood risk remains high. ';city.whatHappened.push('🌊 Flood risk increased due to development.');}
+  if(city._lastEvent)explain+=city._lastEvent.msg+' ';
+  if(city._refinanced)explain+='The city refinanced a loan at higher interest. ';
+  explain+='Mayor '+city.student+' must plan for the next decade.';
+  return{city:city.displayName,student:city.student,year:currentRound*YEARS_PER_ROUND,headline,explain,before,
+    after:{metrics:{...m},population:m.population,debt:city.flags.debt},popLog:city.popLog,event:city._lastEvent,whatHappened:city.whatHappened};
+}
+
+function showNewspapers(){
+  gamePhase='newspaper';
+  document.getElementById('np-year').textContent=currentRound*YEARS_PER_ROUND;
+  document.getElementById('newspaper-grid').innerHTML=roundNewspapers.map(np=>`
+    <div class="newspaper">
+      <div class="np-masthead"><div class="np-name">${np.city.toUpperCase()} TIMES</div><div class="np-edition">Year ${np.year}</div></div>
+      <div class="np-headline">${np.headline}</div>
+      <div class="np-img">${np.event?np.event.icon:'📰'}</div>
+      <p style="font-size:.82rem;line-height:1.55;margin:8px 0">${np.explain}</p>
+      <div class="np-at-glance" style="font-size:.78rem">
+        Budget: ${fmtM(np.before.metrics.budget)} → ${fmtM(np.after.metrics.budget)} ·
+        Pop: ${fmt(np.before.population)} → ${fmt(np.after.population)} ·
+        Happy: ${np.before.metrics.happiness} → ${np.after.metrics.happiness}
+      </div>
+      ${np.popLog?`<div class="pop-breakdown" style="font-size:.75rem;margin-top:8px;padding:8px;background:#fff;border-radius:6px">
+        👶 +${fmt(np.popLog.born)} born · 📥 +${fmt(np.popLog.movedIn)} in · 📤 -${fmt(np.popLog.movedAway)} away
+      </div>`:''}
+    </div>`).join('');
+  renderSidebarNewspaper(roundNewspapers[lastNewspaperIdx%roundNewspapers.length]);
+  lastNewspaperIdx++;
+  document.getElementById('newspaper-overlay').classList.add('show');
+  cities.forEach(c=>{c._lastEvent=null;c._refinanced=false;});
+  refreshUI();
+}
+
+function nextRoundOrFinal(){
+  document.getElementById('newspaper-overlay').classList.remove('show');
+  if(currentRound>=TOTAL_ROUNDS)showFinal();
+  else{currentRound++;document.getElementById('panel-briefing').classList.remove('hidden');
+    document.getElementById('panel-briefing').querySelector('.panel-head span:first-child').textContent='📋 Round '+currentRound+' — Review & Plan';
+    startRound();}
+}
+
+function calcFinalScore(city){
+  const m=city.metrics;
+  const popGrowth=((m.population-city.startPop)/city.startPop)*100;
+  const eduHealth=(m.education+m.health)/2;
+  let score=(m.budget/20*SCORE_WEIGHTS.budget)+(m.happiness*SCORE_WEIGHTS.happiness)
+    +(Math.min(100,Math.max(0,popGrowth+50))*SCORE_WEIGHTS.population)+(eduHealth*SCORE_WEIGHTS.eduHealth)+(m.environment*SCORE_WEIGHTS.environment);
+  score-=(city.flags.debt/100)*DEBT_PENALTY*100;
+  if(m.happiness<30)score-=LOW_HAPPY_PENALTY;
+  if(m.environment<25)score-=LOW_ENV_PENALTY;
+  if(popGrowth<-10)score-=12;
+  return Math.round(Math.max(0,score));
+}
+
+function calcBalance(c){
+  const m=c.metrics;
+  const vals=[m.happiness,m.economy,m.education,m.health,m.environment,m.employment];
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+  return Math.round(100-Math.sqrt(vals.reduce((s,v)=>s+(v-avg)**2,0)/vals.length));
+}
+
+function showFinal(){
+  gamePhase='final';
+  const scored=cities.map(c=>({city:c,score:calcFinalScore(c),popGrowth:c.metrics.population-c.startPop,balance:calcBalance(c)}));
+  scored.sort((a,b)=>b.score-a.score);
+  const richest=[...cities].sort((a,b)=>b.metrics.budget-a.metrics.budget)[0];
+  const happiest=[...cities].sort((a,b)=>b.metrics.happiness-a.metrics.happiness)[0];
+  const popGrow=[...scored].sort((a,b)=>b.popGrowth-a.popGrowth)[0];
+  const balanced=[...scored].sort((a,b)=>b.balance-a.balance)[0];
+  const indebted=[...cities].sort((a,b)=>b.flags.debt-a.flags.debt)[0];
+  document.getElementById('final-subtitle').textContent='🏆 Winner: '+scored[0].city.displayName+' ('+scored[0].city.student+') — Score '+scored[0].score;
+  document.getElementById('final-rankings').innerHTML=`
+    <div class="rank-card"><div class="rank-title">💰 Richest</div>${richest.displayName} — ${fmtM(richest.metrics.budget)}</div>
+    <div class="rank-card"><div class="rank-title">😊 Happiest</div>${happiest.displayName} — ${happiest.metrics.happiness}/100</div>
+    <div class="rank-card"><div class="rank-title">📈 Pop. Growth</div>${popGrow.city.displayName} — +${fmt(popGrow.popGrowth)}</div>
+    <div class="rank-card"><div class="rank-title">⚖️ Most Balanced</div>${balanced.city.displayName}</div>
+    <div class="rank-card"><div class="rank-title">🏦 Most Debt</div>${indebted.displayName} — ${fmtM(indebted.flags.debt)}</div>
+    <div class="rank-card highlight"><div class="rank-title">🎯 Best Planning</div>${scored[0].city.displayName} — ${scored[0].score}</div>`;
+  document.getElementById('final-cities').innerHTML=scored.map(s=>`
+    <div class="glance-card ${s.city.displayName===scored[0].city.displayName?'active':''}">
+      <div class="glance-name">${s.city.emoji} ${s.city.displayName}</div>
+      <div style="font-size:.75rem;line-height:1.6;margin-top:6px">
+        Mayor: ${s.city.student}<br>Budget: ${fmtM(s.city.metrics.budget)}<br>Pop: ${fmt(s.city.metrics.population)}<br>
+        Score: <strong>${s.score}</strong></div></div>`).join('');
+  document.getElementById('final-overlay').classList.add('show');
+}
+
+/* ===== EVENT LISTENERS ===== */
+document.getElementById('btn-start-game').addEventListener('click',()=>{
+  students=[1,2,3,4].map(i=>document.getElementById('sn'+i).value.trim()||'Student '+i);
+  remainingStudents=[...students]; assignments=[];
+  document.getElementById('setup-overlay').classList.remove('show');
+  setPhase('assign'); gamePhase='assign';
+  drawWheel(remainingStudents); renderStudentList(); renderBriefGrid(); renderSidebarNewspaper(null); renderBank(); refreshUI();
+});
+document.getElementById('btn-spin').addEventListener('click',spinWheel);
+document.getElementById('btn-confirm-city').addEventListener('click',confirmCity);
+document.getElementById('btn-start-round1').addEventListener('click',()=>{clearInterval(timerInterval);currentRound=1;startRound();});
+document.getElementById('skip-timer').addEventListener('click',()=>clearInterval(timerInterval));
+document.getElementById('btn-confirm-inv').addEventListener('click',confirmMayorInvestments);
+document.getElementById('btn-simulate').addEventListener('click',()=>{if(currentMayorIdx<cities.length)currentMayorIdx=cities.length;if(cities.length)simulateRound();});
+document.getElementById('btn-next-round').addEventListener('click',nextRoundOrFinal);
+document.getElementById('btn-restart').addEventListener('click',()=>location.reload());
+document.getElementById('btn-restart-header').addEventListener('click',()=>{if(confirm('Restart game?'))location.reload();});
+document.getElementById('btn-reset').addEventListener('click',()=>{if(confirm('Reset game?'))location.reload();});
+document.getElementById('btn-help').addEventListener('click',()=>document.getElementById('help-overlay').classList.add('show'));
+document.getElementById('close-help').addEventListener('click',()=>document.getElementById('help-overlay').classList.remove('show'));
+document.getElementById('btn-teacher').addEventListener('click',()=>{teacherMode=!teacherMode;document.getElementById('btn-teacher').textContent=teacherMode?'🎓 Teacher ON':'🎓 Teacher Mode';});
+</script>
+</body>
+</html>
