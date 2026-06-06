@@ -68,9 +68,11 @@ button{font-family:inherit}
 .sidebar-section ul{padding-left:1.1rem}
 
 /* ===== CITY BRIEFING CARDS ===== */
-.brief-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
-@media(max-width:1200px){.brief-grid{grid-template-columns:repeat(2,1fr)}}
+.brief-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
 @media(max-width:700px){.brief-grid{grid-template-columns:1fr}}
+.dashboard.briefing-focus{grid-template-columns:13rem 1fr}
+.dashboard.briefing-focus .sidebar-right{display:none}
+#panel-briefing .panel-body{padding:1.25rem}
 
 /* ===== CITY GLANCE ===== */
 .glance-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem}
@@ -238,36 +240,50 @@ button{font-family:inherit}
 .player-setup-card input{width:100%;padding:.65rem .85rem;border:2px solid var(--border);border-radius:8px;font-size:1.05rem}
 
 /* ===== CITY BRIEFING CARDS (photo style) ===== */
-.brief-card{border:3px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s;background:#fff;display:flex;flex-direction:column}
+.brief-card{border:3px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s;background:#fff;display:flex;flex-direction:column;min-width:0}
 .brief-card[data-city="riverbend"]{border-color:#7eb8da}
 .brief-card[data-city="ironvale"]{border-color:#c4a882}
 .brief-card[data-city="sunport"]{border-color:#1a3a5c}
 .brief-card[data-city="greenhill"]{border-color:#66bb6a}
 .brief-card:hover:not(.taken){transform:translateY(-3px);box-shadow:0 8px 20px rgba(26,58,92,.15)}
-.brief-card.selected{box-shadow:0 0 0 3px rgba(232,119,34,.4)}
+.brief-card.selected{box-shadow:0 0 0 4px rgba(232,119,34,.45)}
 .brief-card.taken{opacity:.5;cursor:not-allowed}
-.brief-art{height:9.5rem;background-size:200% 200%;background-repeat:no-repeat;flex-shrink:0}
-.brief-body{padding:1rem;font-size:.95rem;line-height:1.55;flex:1}
-.brief-title-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.65rem}
-.brief-icon{width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.35rem;color:#fff;flex-shrink:0}
+.brief-art{width:100%;aspect-ratio:16/10;height:auto;min-height:10rem;max-height:14rem;background-repeat:no-repeat;flex-shrink:0}
+.brief-art.sprite-cities{background-size:200% 400%}
+.brief-art.city-sprite-riverbend{background-position:0% 0%}
+.brief-art.city-sprite-ironvale{background-position:100% 0%}
+.brief-art.city-sprite-sunport{background-position:0% 25%}
+.brief-art.city-sprite-greenhill{background-position:100% 25%}
+.brief-body{padding:1.15rem 1.25rem 1.25rem;font-size:1rem;line-height:1.5;flex:1}
+.brief-title-row{display:flex;align-items:center;gap:.85rem;margin-bottom:.85rem;padding-bottom:.75rem;border-bottom:2px solid var(--border)}
+.brief-icon{width:3rem;height:3rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;flex-shrink:0}
 .brief-icon.riverbend{background:#2a5080}
 .brief-icon.ironvale{background:#8d6e63}
 .brief-icon.sunport{background:#1a3a5c}
 .brief-icon.greenhill{background:#2e7d32}
-.brief-title-block h3{font-size:1.2rem;font-weight:900;letter-spacing:.5px;color:var(--navy);text-transform:uppercase;line-height:1.2}
-.brief-subtitle{font-size:.88rem;font-weight:600;margin-top:3px}
+.brief-title-block{min-width:0;flex:1}
+.brief-title-block h3{font-size:1.4rem;font-weight:900;letter-spacing:.5px;color:var(--navy);text-transform:uppercase;line-height:1.15;word-wrap:break-word}
+.brief-subtitle{font-size:1rem;font-weight:600;margin-top:.25rem}
 .brief-subtitle.riverbend{color:#2a5080}
 .brief-subtitle.ironvale{color:#8d6e63}
 .brief-subtitle.sunport{color:#0277bd}
 .brief-subtitle.greenhill{color:#2e7d32}
-.brief-strength{color:var(--green);margin-bottom:.35rem;font-size:.92rem}
-.brief-strength strong,.brief-challenge strong,.brief-risk strong{font-weight:800}
-.brief-challenge{color:var(--orange);margin-bottom:.35rem;font-size:.92rem}
-.brief-risk{color:var(--red);margin-bottom:.35rem;font-size:.92rem}
-.brief-assigned{font-size:.88rem;color:var(--navy-light);margin-top:.5rem;font-style:italic}
+.brief-facts{display:flex;flex-direction:column;gap:.55rem}
+.brief-fact{display:flex;gap:.65rem;align-items:flex-start;font-size:1rem;line-height:1.45}
+.brief-fact-label{flex-shrink:0;font-weight:800;min-width:7rem}
+.brief-fact.strength .brief-fact-label{color:var(--green)}
+.brief-fact.challenge .brief-fact-label{color:var(--orange)}
+.brief-fact.risk .brief-fact-label{color:var(--red)}
+.brief-fact-text{flex:1;min-width:0}
+.brief-assigned{font-size:.95rem;color:var(--navy-light);margin-top:.75rem;font-style:italic;font-weight:600}
 
 /* ===== GLANCE WITH PHOTOS ===== */
-.glance-thumb{width:100%;height:4.5rem;border-radius:8px 8px 0 0;margin:-0.85rem -0.85rem 0.65rem -0.85rem;width:calc(100% + 1.7rem);background-size:200% 200%;background-repeat:no-repeat}
+.glance-thumb{width:calc(100% + 1.7rem);height:4.5rem;border-radius:8px 8px 0 0;margin:-0.85rem -0.85rem 0.65rem -0.85rem;background-repeat:no-repeat}
+.glance-thumb.sprite-cities{background-size:200% 400%}
+.glance-thumb.city-sprite-riverbend{background-position:0% 0%}
+.glance-thumb.city-sprite-ironvale{background-position:100% 0%}
+.glance-thumb.city-sprite-sunport{background-position:0% 25%}
+.glance-thumb.city-sprite-greenhill{background-position:100% 25%}
 .glance-card{padding:.85rem;padding-top:0;overflow:hidden}
 .glance-mayor{display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem;font-size:1rem}
 .glance-avatar{width:2.25rem;height:2.25rem;border-radius:50%;border:2px solid var(--orange);flex-shrink:0;background-size:200% 200%;background-repeat:no-repeat}
@@ -689,9 +705,10 @@ function renderEventsGrid(){
 
 function setPhase(p){
   gamePhase=p;
-  document.getElementById('panel-glance').classList.toggle('hidden',p==='assign');
+  document.getElementById('panel-glance').classList.toggle('hidden',p==='assign'||p==='briefing');
   document.getElementById('panel-invest').classList.toggle('hidden',p!=='playing');
   document.getElementById('start-round-wrap').classList.toggle('hidden',p!=='briefing');
+  document.querySelector('.dashboard').classList.toggle('briefing-focus',p==='assign'||p==='briefing');
 }
 
 function startTimer(sec, elId){
@@ -741,9 +758,11 @@ function renderBriefGrid(){
             <div class="brief-subtitle ${ct.id}">${ct.subtitle}</div>
           </div>
         </div>
-        <div class="brief-strength"><strong>Strength:</strong> ${ct.strength}</div>
-        <div class="brief-challenge"><strong>Challenge:</strong> ${ct.challenge}</div>
-        <div class="brief-risk"><strong>Special Risk:</strong> ${ct.specialRisk}</div>
+        <div class="brief-facts">
+          <div class="brief-fact strength"><span class="brief-fact-label">Strength</span><span class="brief-fact-text">${ct.strength}</span></div>
+          <div class="brief-fact challenge"><span class="brief-fact-label">Challenge</span><span class="brief-fact-text">${ct.challenge}</span></div>
+          <div class="brief-fact risk"><span class="brief-fact-label">Special Risk</span><span class="brief-fact-text">${ct.specialRisk}</span></div>
+        </div>
         ${a?`<div class="brief-assigned">Mayor: ${a.student}</div>`:''}
       </div></div>`;
   }).join('');
